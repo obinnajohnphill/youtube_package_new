@@ -1,14 +1,18 @@
 
 <!doctype html>
 <html>
+<?php
+session_start();
+?>
 <head>
     <title>YouTube Search</title>
-
+    <script src="https://cdn.rawgit.com/janl/mustache.js/master/mustache.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/views.css">
     <script src="../js/views.js"></script>
-
+    <script src="../js/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 </head>
 
 <body>
@@ -30,40 +34,37 @@
 <a rel="group_1" href="#invert_selection">Invert Selection</a>
 
 <form action="/process" method="post">
-<?php
 
-session_start();
+    <div id="video-object"  class="videoDiv">
+        <div v-for="value in object">
+            <iframe id="iframe" style="width:100%;height:100%"
+                    :src="'https://www.youtube.com/embed/'+value.id.videoId+'?autoplay=0&origin=http://example.com'"
+                    frameborder="0"></iframe>
+             <b>{{value.snippet.title}}</b><br>
 
 
-if(isset($_SESSION['videos']) && isset($_GET['number'])) {
-    for ($i = 0; $i < $_GET['number']; $i++) {
-        if (!empty($_SESSION['videos']['items'][$i]['id']['videoId'])){
-            $videoId = $_SESSION['videos']['items'][$i]['id']['videoId'];
-            $title = $_SESSION['videos'] ['items'][$i]['snippet']['title'];
-            $description = $_SESSION['videos']['items'][$i]['snippet']['description'];
-        ?>
-        <div class="video-tile">
-            <div class="videoDiv">
-                <iframe id="iframe" style="width:100%;height:100%" src="//www.youtube.com/embed/<?php echo $videoId; ?>"
-                        data-autoplay-src="//www.youtube.com/embed/<?php echo $videoId; ?>?autoplay=1"></iframe>
-            </div>
-
-            <fieldset id="group_1">
-            <input type="checkbox" name="videoId[]" value="<?php echo $videoId; ?>"><br>
-            <input type="hidden" name="title[]" value="<?php echo $title; ?>">
+             <fieldset id="group_1">
+             <input type="checkbox" id="checkbox" name="checkbox">
+             <label for="checkbox"></label><br>
+             <input  type="hidden" name="videoId[]"  v-model="value.id.videoId">
+             <input type="hidden" name="title[]"  v-model="value.snippet.title">
             </fieldset>
 
-            <div class="videoInfo">
-                <div class="videoTitle"><b><?php echo $title; ?></b></div>
-                <div class="videoDesc"><?php echo $description; ?></div>
-            </div>
-        </div>
-        <?php
-        }
-    }
-}
-?>
+        </p>
+    </div>
+
 <input type="submit" class="btn btn-primary btn-lg" value="Submit">
 </form>
+
+<script>
+    new Vue({
+        el: '#video-object',
+        data: {
+            object:<?php echo json_encode($_SESSION['videos']['items'],JSON_FORCE_OBJECT); ?>
+        }
+    })
+
+
+</script>
 </body>
 </html>
