@@ -1,33 +1,10 @@
-<!doctype html>
-<html>
-<head>
-    <title>YouTube Search</title>
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="../css/views.css">
-    <script src="../js/views.js"></script>
-
-</head>
-
-<body>
-
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">All Saved Videos</a>
-        </div>
-        <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-        </ul>
-    </div>
-</nav>
 
 <?php
 
 include dirname(__FILE__).'/../../vendor/autoload.php';
 
-use Obinna\Services\YoutubeVideosContainer;
+var_dump($_SESSION['data']);
+
 session_start();
 if (!empty ($_SESSION['msg'])){
     $message = $_SESSION['msg'];
@@ -38,49 +15,72 @@ if (!empty ($_SESSION['delete-msg'])){
     $message = $_SESSION['delete-msg'];
     echo '<div style="color:red">' .$message.'</div>';
     session_unset();
-}
+}?>
 
-## Call the a function within the Repository via the Services to get all videos
-$container = new YoutubeVideosContainer();
-$function = $container->getYoutubeVideosRepository();
-$showall = $function->all();
 
-if ($showall == null){
-    echo "There are no videos in the database";
-}
+<!doctype html>
+<html>
+<head>
+    <title>YouTube Search</title>
+    <script src="https://cdn.rawgit.com/janl/mustache.js/master/mustache.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/views.css">
+    <script src="../js/views.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
 
-?>
+<body>
 
-<a rel="group_1" href="#select_all" align ="right" <?php if (count($showall) == 0){echo 'style= "display: none;"';} ?>>Select All</a>&ensp;
-<a rel="group_1" href="#select_none" <?php if (count($showall) == 0){echo 'style= "display: none;"';} ?>>Select None</a>&ensp;
-<a rel="group_1" href="#invert_selection" <?php if (count($showall) == 0){echo 'style= "display: none;"';} ?>>Invert Selection</a>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Search Result</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/saved_videos">All Saved Videos</a></li>
+        </ul>
+    </div>
+</nav>
+
+<a rel="group_1" href="#select_all" align ="right">Select All</a>&ensp;
+<a rel="group_1" href="#select_none">Select None</a>&ensp;
+<a rel="group_1" href="#invert_selection">Invert Selection</a>
 
 <form action="/process" method="post">
-<?php
-if (!empty($showall['videoId'])){
-for ($i = 0; $i < count($showall['videoId']); $i++) {
-    $videoId = $showall['videoId'][$i];
-    $title = $showall['title'][$i];
-    ?>
-    <div class="video-tile">
-        <div class="videoDiv">
-            <iframe id="iframe" style="width:100%;height:100%" src="//www.youtube.com/embed/<?php echo $videoId; ?>"
-                    data-autoplay-src="//www.youtube.com/embed/<?php echo $videoId; ?>?autoplay=1"></iframe>
-        </div>
-        <fieldset id="group_1">
-            <input type="checkbox" name="videoId[]" value="<?php echo $videoId; ?>"><br>
-            <input type="hidden" name="delete" value="delete">
-        </fieldset>
-        <div class="videoInfo">
-            <div class="videoTitle"><b><?php echo $title; ?></b></div>
-        </div>
-    </div>
-    <?php
-  }
-}
 
-?>
-<input type="submit" class="btn btn-danger btn-lg" value="Delete" <?php if (count($showall) == 0){echo 'style= "display: none;"';} ?>/ >
+    <div id="video-object"  class="videoDiv">
+        <div v-for="value in object">
+            <iframe id="iframe" style="width:100%;height:100%"
+                    :src="'https://www.youtube.com/embed/'+value.id.videoId+'?autoplay=0&origin=http://example.com'"
+                    frameborder="0"></iframe>
+            <b>{{value.snippet.title}}</b><br>
+
+
+            <fieldset id="group_1">
+                <input type="checkbox" id="checkbox" name="checkbox[]">
+                <label for="checkbox"></label><br>
+                <input  type="hidden" name="videoId[]"  v-model="value.id.videoId">
+                <input type="hidden" name="title[]"  v-model="value.snippet.title">
+            </fieldset>
+
+            </p>
+        </div>
+
+        <input type="submit" class="btn btn-primary btn-lg" value="Submit">
 </form>
+
+<script>
+    new Vue({
+        el: '#video-object',
+        data: {
+            object:<?php echo json_encode($_SESSION['videoId'],JSON_FORCE_OBJECT); ?>
+        }
+    })
+
+
+</script>
 </body>
 </html>

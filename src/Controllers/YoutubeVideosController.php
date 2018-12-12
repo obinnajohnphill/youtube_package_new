@@ -53,4 +53,10 @@ class YoutubeVideosController
         $insert->delete($videoId);
     }
 
+    public function getAllVideos(){
+        $container = new YoutubeVideosContainer();
+        $select = $container->getYoutubeVideosRepository();
+        $select->all();
+    }
+
 }

@@ -5,7 +5,6 @@ include dirname(__FILE__).'/../vendor/autoload.php';
 use Obinna\Router\Router;
 use Obinna\Router\Request;
 
-
 $router = new Router(new Request);
 
 $request = "";
@@ -30,4 +29,5 @@ $router->get('/404', function($request) {
 $router->post('/process', function($request) {
     return json_encode($request->getBody());
 });
+
 
