@@ -3,9 +3,21 @@
 
 include dirname(__FILE__).'/../../vendor/autoload.php';
 
-var_dump($_SESSION['data']);
+use Obinna\Services\YoutubeVideosContainer;
 
+session_unset();
 session_start();
+
+//var_dump($_SESSION);
+//die();
+
+if (!empty ($_SESSION['data'])){
+   // var_dump($_SESSION['data']);
+    //die();
+}
+
+ echo json_encode($_SESSION,JSON_FORCE_OBJECT);
+//die();
 if (!empty ($_SESSION['msg'])){
     $message = $_SESSION['msg'];
     echo '<div style="color:#4a8b15">' .$message.'</div>';
@@ -15,9 +27,8 @@ if (!empty ($_SESSION['delete-msg'])){
     $message = $_SESSION['delete-msg'];
     echo '<div style="color:red">' .$message.'</div>';
     session_unset();
-}?>
-
-
+}
+?>
 <!doctype html>
 <html>
 <head>
@@ -51,35 +62,38 @@ if (!empty ($_SESSION['delete-msg'])){
 
 <form action="/process" method="post">
 
-    <div id="video-object"  class="videoDiv">
-        <div v-for="value in object">
+    <div id="payload" class="videoDiv">
+        <div v-for="item in items">
             <iframe id="iframe" style="width:100%;height:100%"
-                    :src="'https://www.youtube.com/embed/'+value.id.videoId+'?autoplay=0&origin=http://example.com'"
+                    :src="'https://www.youtube.com/embed/'+item.videoId+'?autoplay=0&origin=http://example.com'"
                     frameborder="0"></iframe>
-            <b>{{value.snippet.title}}</b><br>
+            <b> {{item.title}}</b><br>
+
 
 
             <fieldset id="group_1">
                 <input type="checkbox" id="checkbox" name="checkbox[]">
                 <label for="checkbox"></label><br>
-                <input  type="hidden" name="videoId[]"  v-model="value.id.videoId">
-                <input type="hidden" name="title[]"  v-model="value.snippet.title">
+                <input  type="hidden" name="videoId[]"  v-model="item.videoId">
+                <input type="hidden" name="title[]"  v-model="item.title">
             </fieldset>
 
-            </p>
         </div>
+    </div>
 
-        <input type="submit" class="btn btn-primary btn-lg" value="Submit">
+
+<input type="submit" class="btn btn-danger btn-lg" value="Delete">
+
 </form>
 
 <script>
     new Vue({
-        el: '#video-object',
+        el: '#payload',
         data: {
-            object:<?php echo json_encode($_SESSION['videoId'],JSON_FORCE_OBJECT); ?>
+            items:
+                <?php echo json_encode($_SESSION,JSON_FORCE_OBJECT); ?>
         }
     })
-
 
 </script>
 </body>

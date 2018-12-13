@@ -43,6 +43,7 @@ class YoutubeVideosModel
 
     public function all(){
         try{
+            $this->memcached->flush();
             ## Get result from memcached if data exists in cache
             $cached = $this->memcached->get("select");
             if ($this->memcached->getResultCode() !== Memcached::RES_NOTFOUND) {
@@ -100,7 +101,6 @@ class YoutubeVideosModel
                 include_once $_SERVER["DOCUMENT_ROOT"]."/Send.php";
                 new \Send($data); ## Send data to Kafka
                 session_start();
-                $_SESSION['data'] = $this->all();
                 $_SESSION['msg'] = "Your video has been saved";
                 $redirect = "../saved_videos";
                 header( "Location: $redirect" );
