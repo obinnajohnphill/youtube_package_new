@@ -82,16 +82,17 @@ class YoutubeVideosModel
 
                 $video_id = $array['videoId'][$i];
                 $title = $array['title'][$i];
-/*
+
                 $checkDuplicate = $this->checkDuplicate($array['videoId'][$i]);
+
                 if ($checkDuplicate > 0) {
                     session_start();
                     $_SESSION['duplicate'] = "Duplicate video exists in database: ".$title;
                     $redirect = "../";
                     header("Location: $redirect");
-                    exit();
+                    die();
                 }
-*/
+
                 $statement = $this->conn->prepare("INSERT INTO videos (video_id, title) VALUES ('$video_id','$title')");
                 $statement->execute();
                 $statement = null;
@@ -99,9 +100,7 @@ class YoutubeVideosModel
                 $this->memcached->flush();
                 new SendMessage();
                 include_once $_SERVER["DOCUMENT_ROOT"]."/Send.php";
-                //new \Send($data); ## Send data to Kafka
-                session_start();
-                $_SESSION['msg'] = "Your video has been saved";
+                new \Send($data); ## Send data to Kafka
                 $redirect = "../saved_videos";
                 header( "Location: $redirect" );
             }
@@ -132,24 +131,25 @@ class YoutubeVideosModel
 
     public function delete($video_id){
         try{
-            for ($i = 0; $i < count($video_id['videoId']); $i++){
-                $video = $video_id['videoId'][$i];
-                $statement = $this->conn->prepare("DELETE FROM videos WHERE video_id = '$video'");
-                $statement->execute();
-                $statement = null;
-                $this->memcached->flush();
-               // die("deleted?");
+            if (!empty($video_id['checkbox'])){
+                for ($i = 0; $i < count($video_id['checkbox']); $i++){
+                    $video = $video_id['videoId'][$i];
+                    $statement = $this->conn->prepare("DELETE FROM videos WHERE video_id = '$video'");
+                    $statement->execute();
+                    $statement = null;
+                    $this->memcached->flush();
+
+                }
             }
+            $redirect = "../saved_videos";
+            header("Location: $redirect");
+            die();
 
         }
         catch(PDOException $e)
         {
             echo "Delete failed: " . $e->getMessage();
         }
-        session_start();
-        $_SESSION['delete-msg'] = "Videos deleted from database";
-        $redirect = "../saved_videos";
-        header("Location: $redirect");
     }
 
 
