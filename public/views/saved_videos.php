@@ -3,21 +3,11 @@
 
 include dirname(__FILE__).'/../../vendor/autoload.php';
 
-use Obinna\Services\YoutubeVideosContainer;
+ //echo json_encode($_SESSION,JSON_FORCE_OBJECT);
 
-session_unset();
-session_start();
+$payload = new \Obinna\Controllers\YoutubeVideosController(null);
+$data = $payload->getAllVideos();
 
-//var_dump($_SESSION);
-//die();
-
-if (!empty ($_SESSION['data'])){
-   // var_dump($_SESSION['data']);
-    //die();
-}
-
- echo json_encode($_SESSION,JSON_FORCE_OBJECT);
-//die();
 if (!empty ($_SESSION['msg'])){
     $message = $_SESSION['msg'];
     echo '<div style="color:#4a8b15">' .$message.'</div>';
@@ -68,16 +58,12 @@ if (!empty ($_SESSION['delete-msg'])){
                     :src="'https://www.youtube.com/embed/'+item.videoId+'?autoplay=0&origin=http://example.com'"
                     frameborder="0"></iframe>
             <b> {{item.title}}</b><br>
-
-
-
             <fieldset id="group_1">
                 <input type="checkbox" id="checkbox" name="checkbox[]">
                 <label for="checkbox"></label><br>
                 <input  type="hidden" name="videoId[]"  v-model="item.videoId">
-                <input type="hidden" name="title[]"  v-model="item.title">
-            </fieldset>
-
+                <input type="hidden" name="delete"  value="delete">
+            </fieldset><br>
         </div>
     </div>
 
@@ -91,7 +77,7 @@ if (!empty ($_SESSION['delete-msg'])){
         el: '#payload',
         data: {
             items:
-                <?php echo json_encode($_SESSION,JSON_FORCE_OBJECT); ?>
+                <?php echo json_encode($data,JSON_FORCE_OBJECT); ?>
         }
     })
 
