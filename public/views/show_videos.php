@@ -1,9 +1,5 @@
-
 <!doctype html>
 <html>
-<?php
-session_start();
-?>
 <head>
     <title>YouTube Search</title>
     <script src="https://cdn.rawgit.com/janl/mustache.js/master/mustache.min.js"></script>
@@ -60,11 +56,9 @@ session_start();
     new Vue({
         el: '#video-object',
         data: {
-            object:<?php echo json_encode($_SESSION['videos']['items'],JSON_FORCE_OBJECT);?>
+            object:<?php echo json_encode($this->value['items'],JSON_FORCE_OBJECT);?>
         }
     })
-
-
 </script>
 </body>
 </html>
